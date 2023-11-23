@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 22 19:37:17 2023
+@author: zoeiorizzo
+ds2001 final project question 1 draft
+
+"""
+
+import csv
+import matplotlib.pyplot as plt
+
+
+
+
+
+
+#this function reads the rows of the file and and appends it all to one list
+#I did this so we can re-use this function to do multiple analysis
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        row_content = []
+        
+        for line in reader:
+            row_content.append(line)
+            
+    return row_content[1:]
+
+
+#Creates a dictionary to could how many songs are released in each month
+#plots it and finds which month had the most streams
+def count_monthly_songs(row_content):
+    
+    songs_per_month = {
+    'January': 0,
+    'February': 0,
+    'March': 0,
+    'April': 0,
+    'May': 0,
+    'June': 0,
+    'July': 0,
+    'August': 0,
+    'September': 0,
+    'October': 0,
+    'November': 0,
+    'December': 0
+    }
+    
+    for song in row_content:
+        songs_per_month[song[4]] += 1
+        
+    names = list(songs_per_month.keys())
+    values = list(songs_per_month.values())
+    plt.bar(range(len(songs_per_month)), values, tick_label=names)
+    
+    most_songs_month = max(songs_per_month, key=songs_per_month.get)
+      
+        
+    return most_songs_month + "has the highest number of most streamed Spotify songs."
+
+#makes a scatter plot where each dot represents a song
+#the X value is the month, the Y is the number of streams
+#after looking at the screenshot Giovanna sent, we may not actuall y need this lol
+    
+def plot_month_vs_streams(row_content):
+    
+    months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December']
+    
+    song_months = []
+    all_song_streams = []
+    
+    for song in row_content:
+        month_index = months.index(song[4]) + 1
+        song_streams = int(song[8])
+        song_months.append(month_index)
+        all_song_streams.append(song_streams)
+        
+    plt.scatter(song_months, all_song_streams, marker='o')
+    plt.xlabel('Month')
+    plt.ylabel('Number of Streams')
+    plt.title('Release Month vs. # of Streams')
+   
+    
+    
+        
+
+
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+# I created a sample file with less rows just so my console doesnt
+#blow up
+ex = read_csv("Spotify-sample - Sheet1.csv")
+print(count_monthly_songs(ex))
+
