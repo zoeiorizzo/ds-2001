@@ -1,0 +1,34 @@
+import csv
+import matplotlib.pyplot as plt
+
+
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        row_content = []
+
+        for line in reader:
+            row_content.append(line)
+
+    return row_content[1:]
+
+def get_streams_dance(data):
+    streams = []
+    danceability = [] 
+    for item in data:
+        streams.append(int(item[8]))
+        danceability.append(int(item[16]))
+ 
+    return streams, danceability
+
+def create_scatter_plot(streams, danceability):
+    plt.scatter(streams, danceability)
+    plt.title('Scatter Plot of Number of Streams vs. Danceability')
+    plt.xlabel('Number of Streams')
+    plt.ylabel('Danceability %')
+    plt.show()
+
+if __name__ == "__main__":
+    data = read_csv("spotify_data.csv")
+    streams, danceability = get_streams_dance(data)
+    create_scatter_plot(streams, danceability)
