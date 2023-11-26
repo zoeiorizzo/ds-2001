@@ -22,7 +22,7 @@ def get_streams_dance(data):
     return streams, danceability
 
 def create_scatter_plot(streams, danceability):
-    plt.scatter(streams, danceability)
+    plt.scatter(streams, danceability, marker='x')
     plt.title('Scatter Plot of Number of Streams vs. Danceability')
     plt.xlabel('Number of Streams')
     plt.ylabel('Danceability %')
