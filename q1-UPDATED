@@ -1,0 +1,56 @@
+import csv
+import matplotlib.pyplot as plt
+
+
+
+
+
+
+#this function reads the rows of the file and and appends it all to one list
+#I did this so we can re-use this function to do multiple analysis
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        row_content = []
+        
+        for line in reader:
+            row_content.append(line)
+            
+    return row_content[1:]
+
+
+#Creates a dictionary to could how many songs are released in each month
+#plots it and finds which month had the most streams
+def count_monthly_songs(row_content):
+    
+    songs_per_month = {
+    'January': 0,
+    'February': 0,
+    'March': 0,
+    'April': 0,
+    'May': 0,
+    'June': 0,
+    'July': 0,
+    'August': 0,
+    'September': 0,
+    'October': 0,
+    'November': 0,
+    'December': 0
+    }
+    
+    for song in row_content:
+        songs_per_month[song[4]] += 1
+        
+    names = list(songs_per_month.keys())
+    values = list(songs_per_month.values())
+    plt.bar(range(len(songs_per_month)), values, tick_label=names)
+    plt.ylabel("Number of Songs")
+    plt.title("Songs vs. Release Month")
+    plt.figure(figsize=(13,6))
+   
+   
+    
+    most_songs_month = max(songs_per_month, key=songs_per_month.get)
+      
+        
+    return most_songs_month + " has the highest number of most streamed Spotify songs."
