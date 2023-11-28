@@ -1,0 +1,19 @@
+import csv
+import matplotlib.pyplot as plt
+
+
+
+
+
+
+#this function reads the rows of the file and and appends it all to one list
+#I did this so we can re-use this function to do multiple analysis
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        row_content = []
+        
+        for line in reader:
+            row_content.append(line)
+            
+    return row_content[1:]
