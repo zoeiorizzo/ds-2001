@@ -1,0 +1,69 @@
+import csv
+import matplotlib.pyplot as plt
+
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        row_content = []
+        
+        for line in reader:
+            row_content.append(line)
+            
+    return row_content[1:]
+
+def get_streams_danceability(row_content):
+    """
+    Extracts the number of streams and danceability percentage from a list of songs
+
+    Parameters
+    ----------
+    row_content : list
+        A list contatining information about each song
+
+    Returns
+    -------
+    list
+        A list containing two sublists: the first sublist represents the number of streams
+        for each song, and the second sublist represents the danceability percentage for each song..
+
+    """
+    
+    streams = []
+    danceability = []
+    
+    for song in row_content:
+        song_streams = int(song[8])
+        streams.append(song_streams)
+        song_dance = int(song[16])
+        danceability.append(song_dance)
+        
+    return [streams, danceability]
+    
+def create_scatter_plot(streams, danceability):
+    """
+    Creates a scatter plot of the number of streams vs. danceability percentage.
+
+    Parameters
+    ----------
+    streams : list
+        A list representing the number of streams for each song.
+   danceability : list
+       A list representing the danceability percentage for each song.
+
+    Returns
+    -------
+    None.
+
+    """
+    plt.figure(figsize=(10,6))
+    plt.scatter(streams, danceability, marker='o', color="green")
+    plt.title('Scatter Plot of Number of Streams vs. Danceability')
+    plt.xlabel('Number of Streams')
+    plt.ylabel('Danceability %')
+    plt.show()
+
+if __name__ == "__main__":
+    data = read_csv("data_spotify.csv")
+    data_list = get_streams_danceability(data)
+    create_scatter_plot(data_list[0], data_list[1])
+    
