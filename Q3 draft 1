@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Final Project
+"""
+import csv
+import matplotlib.pyplot as plt
+
+def read_csv(FILENAME):
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.reader(fi)
+        header = next(reader)
+        data = []
+        for row in reader:
+            data.append(row)
+
+    return data
+
+
+def calculate_total_streams(data, artist_index, stream_index):
+    artist_streams = {}
+    for row in data:
+        artist = row[artist_index]
+        streams = int(row[stream_index].replace(',',''))
+        if artist in artist_streams:
+            artist_streams[artist] += streams
+        else:
+            artist_streams[artist] = streams
+    return artist_streams
+
+
+def get_top_artists(artist_streams, num_top_artists):
+    top_artists = sorted(artist_streams, key = artist_streams.get, reverse = True)[:num_top_artists]
+    return top_artists
+
+
+def create_box_plots(data, artist, stream_index, bpm_index):
+    bpms = []
+    for row in data:
+        if row[1] == artist:
+            bpm_value = row[bpm_index]
+            if bpm_value and bpm_value.replace('.', '').isdigit():
+                bpms.append(float(bpm_value))
+    plt.figure(figsize = (10, 6))
+    plt.boxplot(bpms, labels = [artist])
+    plt.ylabel('IC50 Value')
+    plt.title(f'BPM in Songs of {artist}')
+    plt.show()
+    
+    
+if __name__ == '__main__':
+    # Defining the file name
+    FILENAME = 'Most Streamed Spotify Songs 2023.csv'
+    # Reading in the file
+    data = read_csv(FILENAME)
+    # Determining the indexes needed for the plot
+    artist_index = 1
+    stream_index = 7
+    bpm_index = 13
+    # Calculating the total streams for an artist
+    artist_streams = calculate_total_streams(data, artist_index, stream_index)
+    # Finding the top 5 artists
+    num_top_artists = 5
+    top_artists = get_top_artists(artist_streams, num_top_artists)
+    # Creating a box plot for each artist
+    for artist in top_artists:
+        create_box_plots(data, artist, stream_index, bpm_index)
