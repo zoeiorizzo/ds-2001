@@ -1,0 +1,123 @@
+import csv
+import matplotlib.pyplot as plt
+
+# Creating constants the indexes needed for the plot
+ARTIST_COLUMN = 'artist(s)_name'
+STREAM_COLUMN = 'streams'
+BPM_COLUMN = 'bpm'
+
+def read_csv(FILENAME):
+    """
+    Reads through a CSV file
+    Parameters
+    ----------
+    FILENAME : string
+        Name of the data file
+
+    Returns
+    -------
+    data : list
+        List of rows in the file
+    """
+    
+    with open(FILENAME, 'r') as fi: 
+        reader = csv.DictReader(fi)
+        data = list(reader)
+    return data
+
+
+def calculate_total_streams(data, artist_column, stream_column):
+    """
+    Calculates the total streams for each artist in the file
+    Parameters
+    ----------
+    data : list
+        List of rows in the file
+    artist_column : string
+        Name of the column containing the artists
+    stream_column : string
+        Name of the column containing the number of streams
+
+    Returns
+    -------
+    artist_streams : dictionary
+        Number of streams for each artist in the file
+    """
+    
+    artist_streams = {}
+    for row in data:
+        artist = row[artist_column]
+        streams = int(row[stream_column].replace(',',''))
+        # Adding the number of streams to the total stream
+        if artist in artist_streams:
+            artist_streams[artist] += streams
+        else:
+            artist_streams[artist] = streams
+    return artist_streams
+
+
+def get_top_artists(artist_streams, num_top_artists):
+    """
+    Finds the top n artists in the file
+    Parameters
+    ----------
+    artist_streams : dictionary
+        Number of streams for each artist in the file
+    num_top_artists : int
+        Number of top artists used for comparison
+
+    Returns
+    -------
+    top_artists : list
+        Top artists in the file
+    """
+    
+    top_artists = sorted(artist_streams, key = artist_streams.get, reverse = True)[:num_top_artists]
+    return top_artists
+
+
+def create_box_plots(data, top_artists, bpm_index, num_top_artists):
+    """
+    Creating a graph containing a box plot for each top artist
+    Parameters
+    ----------
+    data : list
+        List of rows in the file
+    top_artists : list
+        Top artists in the file
+    bpm_index : string
+        Name of the column containing the bpm values
+    num_top_artists : int
+        Number of top artists used for comparison
+    """
+    
+    plt.figure(figsize=(10, 6))
+    # Creating a list of BPMs for each artist
+    bpms_data = []
+    for artist in top_artists:
+        bpm_values = []
+        for row in data:
+            if row[ARTIST_COLUMN] == artist:
+                bpm_value = row[bpm_index]
+                if bpm_value and bpm_value.replace('.', ''):
+                    bpm_values.append(float(bpm_value))  # Append individual BPM values
+        bpms_data.append(bpm_values)
+    # Plotting the data
+    plt.boxplot(bpms_data, labels=top_artists)
+    plt.ylabel('BPM')
+    plt.title(f'BPM of Songs for Top {num_top_artists} Artists')
+    plt.show()
+    
+    
+if __name__ == '__main__':
+    # Defining the file name
+    FILENAME = 'Most Streamed Spotify Songs 2023.csv'
+    # Reading in the file
+    data = read_csv(FILENAME)
+    # Calculating the total streams for an artist
+    artist_streams = calculate_total_streams(data, ARTIST_COLUMN, STREAM_COLUMN)
+    # Finding the top 5 artists
+    num_top_artists = 5
+    top_artists = get_top_artists(artist_streams, num_top_artists)
+    # Creating a box plot for each artist
+    create_box_plots(data, top_artists, BPM_COLUMN, num_top_artists)
