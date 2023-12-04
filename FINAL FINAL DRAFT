@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+DS 2001
+Fall 2023
+Final Project
+Chloe Doyle, Zoe, Iorizzo, Giovanna Milora
+"""
+
+# Creating constants for the columns being used
+SONG_COLUMN = 'track_name'
+ARTIST_COLUMN = 'artist(s)_name'
+MONTH_COLUMN = 'released_month'
+STREAM_COLUMN = 'streams'
+BPM_COLUMN = 'bpm'
+DANCEABILITY_COLUMN = 'danceability_%'
+
+import csv
+import matplotlib.pyplot as plt
+
+def read_csv(FILENAME):
+    """
+    Reads through a CSV file
+    
+    Parameters
+    ----------
+    FILENAME : string
+        Name of the data file
+
+    Returns
+    -------
+    data : list
+        List of rows in the file
+    """
+    with open(FILENAME, 'r') as fh: 
+        reader = csv.DictReader(fh)
+        data = list(reader)
+    return data
+
+
+# Question 1 - Which month has the greatest number of top streamed songs?
+def count_monthly_songs(data):
+    """
+    Creates a dictionary to count how many songs are released in each month
+    
+    Parameters
+    ----------
+    data : list
+        List of rows in the file
+
+    Returns
+    -------
+    songs_per_month : dict
+        A dictionary with the count of songs released in each month
+    most_songs_month : str
+        The month with the highest number of most streamed Spotify songs
+    """
+    # Intializing the dictionary
+    songs_per_month = {
+        'January': 0,
+        'February': 0,
+        'March': 0,
+        'April': 0,
+        'May': 0,
+        'June': 0,
+        'July': 0,
+        'August': 0,
+        'September': 0,
+        'October': 0,
+        'November': 0,
+        'December': 0
+    }
+    # Adding to the counter for each month
+    for song in data:
+        songs_per_month[song[MONTH_COLUMN]] += 1
+    # Finding the month with the most number of streams
+    most_songs_month = max(songs_per_month, key=songs_per_month.get)
+        
+    return most_songs_month, songs_per_month
+
+    
+def plot_month_vs_streams(data, songs_per_month):
+    """
+    Makes a scatter plot where each dot represents a song
+    
+    Parameters
+    ----------
+    row_content : list
+        List of rows in the file
+    """
+    
+    for song in data:
+        songs_per_month[song[MONTH_COLUMN]] += 1
+    
+    # Creating variables for the graph
+    names = list(songs_per_month.keys())
+    values = list(songs_per_month.values())
+    # Creating the graph
+    plt.figure(figsize=(8,4))
+    plt.bar(range(len(songs_per_month)), values, tick_label=names)
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.xlabel('Month')
+    plt.ylabel('Number of Songs')
+    plt.title('Songs vs. Release Month')
+    plt.show()
+    
+
+# Question 2 - Is there correlation between a number of streams and danceabiltiy?
+def get_streams_danceability(row_content):
+    """
+    Extracts the number of streams and danceability percentage from a list of songs
+
+    Parameters
+    ----------
+    row_content : list
+        A list contatining information about each song
+
+    Returns
+    -------
+    list
+        A list containing two sublists: the first sublist represents the number of streams
+        for each song, and the second sublist represents the danceability percentage for each song.
+
+    """
+    
+    streams = []
+    danceability = []
+    
+    for song in row_content:
+        song_streams = int(song[STREAM_COLUMN])
+        streams.append(song_streams)
+        song_dance = int(song[DANCEABILITY_COLUMN])
+        danceability.append(song_dance)
+        
+    return [streams, danceability]
+    
+def create_scatter_plot(streams, danceability):
+    """
+    Creates a scatter plot of the number of streams vs. danceability percentage.
+    
+    Parameters
+    ----------
+    streams : list
+        A list representing the number of streams for each song.
+    danceability : list
+       A list representing the danceability percentage for each song.
+    """
+    plt.figure(figsize=(10,5))
+    plt.scatter(streams, danceability, marker='o', color="green")
+    plt.title('Scatter Plot of Number of Streams vs. Danceability')
+    plt.xlabel('Number of Streams')
+    plt.ylabel('Danceability %')
+    plt.ticklabel_format(style='plain', axis='both')
+    plt.show()
+
+    
+# Question 3 - Do popular artists have similar BPM in their songs? 
+# How much does the BPM vary for each artist?
+
+def calculate_total_streams(data, artist_column, stream_column):
+    """
+    Calculates the total streams for each artist in the file
+    
+    Parameters
+    ----------
+    data : list
+        List of rows in the file
+    artist_column : string
+        Name of the column containing the artists
+    stream_column : string
+        Name of the column containing the number of streams
+
+    Returns
+    -------
+    artist_streams : dictionary
+        Number of streams for each artist in the file
+    """
+    
+    artist_streams = {}
+    for row in data:
+        artist = row[artist_column]
+        streams = int(row[stream_column].replace(',',''))
+        # Adding the number of streams to the total stream
+        if artist in artist_streams:
+            artist_streams[artist] += streams
+        else:
+            artist_streams[artist] = streams
+    return artist_streams
+
+
+def get_top_artists(artist_streams, num_top_artists):
+    """
+    Finds the top n artists in the file
+    
+    Parameters
+    ----------
+    artist_streams : dictionary
+        Number of streams for each artist in the file
+    num_top_artists : int
+        Number of top artists used for comparison
+
+    Returns
+    -------
+    top_artists : list
+        Top artists in the file
+    """
+    
+    top_artists = sorted(artist_streams, key = artist_streams.get, reverse = True)[:num_top_artists]
+    return top_artists
+
+
+def create_box_plots(data, top_artists, bpm_index, num_top_artists):
+    """
+    Creating a graph containing a box plot for each top artist
+    
+    Parameters
+    ----------
+    data : list
+        List of rows in the file
+    top_artists : list
+        Top artists in the file
+    bpm_index : string
+        Name of the column containing the bpm values
+    num_top_artists : int
+        Number of top artists used for comparison
+    """
+    
+    plt.figure(figsize = (9, 5))
+    # Creating a list of BPMs for each artist
+    bpms_data = []
+    for artist in top_artists:
+        bpm_values = []
+        for row in data:
+            if row[ARTIST_COLUMN] == artist:
+                bpm_value = row[BPM_COLUMN]
+                if bpm_value and bpm_value.replace('.', ''):
+                    bpm_values.append(float(bpm_value))  # Append individual BPM values
+        bpms_data.append(bpm_values)
+    # Plotting the data
+    plt.boxplot(bpms_data, labels=top_artists)
+    plt.ylabel('BPM')
+    plt.title(f'BPM of Songs for Top {num_top_artists} Artists')
+    plt.show()
+    
+    
+if __name__ == '__main__':
+    # Defining the file name
+    FILENAME = 'Most Streamed Spotify Songs 2023.csv'
+    # Reading in the file
+    data = read_csv(FILENAME)
+
+    # Question 1
+    most_songs_month, songs_per_month = count_monthly_songs(data)
+    print(f"{most_songs_month} has the highest number of most streamed Spotify songs.")
+    plot_month_vs_streams(data, songs_per_month)
+
+    # Question 2
+    data_list = get_streams_danceability(data)
+    create_scatter_plot(data_list[0], data_list[1])
+
+    # Question 3
+    # Calculating the total streams for an artist
+    artist_streams = calculate_total_streams(data, ARTIST_COLUMN, STREAM_COLUMN)
+    # Finding the top 5 artists
+    num_top_artists = 5
+    top_artists = get_top_artists(artist_streams, num_top_artists)
+    # Creating a box plot for each artist
+    create_box_plots(data, top_artists, BPM_COLUMN, num_top_artists)
