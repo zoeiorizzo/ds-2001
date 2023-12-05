@@ -17,6 +17,8 @@ DANCEABILITY_COLUMN = 'danceability_%'
 
 import csv
 import matplotlib.pyplot as plt
+import scipy.stats as stats
+
 
 def read_csv(FILENAME):
     """
@@ -74,8 +76,7 @@ def count_monthly_songs(data):
     for song in data:
         songs_per_month[song[MONTH_COLUMN]] += 1
     # Finding the month with the most number of streams
-    most_songs_month = max(songs_per_month, key=songs_per_month.get)
-        
+    most_songs_month = max(songs_per_month, key=songs_per_month.get)       
     return most_songs_month, songs_per_month
 
     
@@ -131,8 +132,7 @@ def get_streams_danceability(row_content):
         song_streams = int(song[STREAM_COLUMN])
         streams.append(song_streams)
         song_dance = int(song[DANCEABILITY_COLUMN])
-        danceability.append(song_dance)
-        
+        danceability.append(song_dance)      
     return [streams, danceability]
     
 def create_scatter_plot(streams, danceability):
@@ -148,6 +148,10 @@ def create_scatter_plot(streams, danceability):
     """
     plt.figure(figsize=(10,5))
     plt.scatter(streams, danceability, marker='o', color="green")
+    # Creating correlation coefficient
+    r, p = stats.pearsonr(streams, danceability)
+    plt.annotate('r = {:.4f}'.format(r), xy=(0.82, 0.1), xycoords='axes fraction')
+    # Adding labels
     plt.title('Scatter Plot of Number of Streams vs. Danceability')
     plt.xlabel('Number of Streams')
     plt.ylabel('Danceability %')
@@ -157,7 +161,6 @@ def create_scatter_plot(streams, danceability):
     
 # Question 3 - Do popular artists have similar BPM in their songs? 
 # How much does the BPM vary for each artist?
-
 def calculate_total_streams(data, artist_column, stream_column):
     """
     Calculates the total streams for each artist in the file
